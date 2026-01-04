@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nishant Kumar Arya | Civil Sub-Engineer Portfolio</title>
+    <!-- Font -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #f59e0b; /* Saffron */
+            --accent: #b45309;
+            --bg: #1c1917;
+            --card: #292524;
+            --text: #e7e5e4;
+        }
+
+        .spirit-mode {
+            --primary: #22d3ee; /* Cyan */
+            --accent: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.8s ease, color 0.8s ease;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .mythic-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes rotate-mandala {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .mandala-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 120vw;
+            height: 120vw;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            z-index: -1;
+            animation: rotate-mandala 120s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Custom Scrollbar */
+        .timeline-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 999;
+            font-size: 1.5rem;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0); opacity: 0; }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Card Hover */
+        .skill-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 30px -10px var(--primary);
+        }
+
+        .third-eye-btn {
+            box-shadow: 0 0 15px var(--primary);
+            animation: pulse-eye 2s infinite;
+        }
+
+        @keyframes pulse-eye {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--primary); }
+            50% { transform: scale(1.1); box-shadow: 0 0 25px var(--primary); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--primary); }
+        }
+    </style>
+</head>
+<body onclick="createParticles(event)">
+
+    <!-- Background Mandala -->
+    <svg class="mandala-bg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 1" />
+        <path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="none" stroke="currentColor" stroke-width="0.2" />
+        <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="0.5" />
+    </svg>
+
+    <!-- Third Eye Toggle -->
+    <button onclick="toggleSpirit()" class="third-eye-btn fixed bottom-8 right-8 z-50 p-4 rounded-full bg-stone-800 border-2 border-[var(--primary)] text-[var(--primary)]">
+        <i data-lucide="eye"></i>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/10 px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-widest text-[var(--primary)] mythic-font">N. ARYA</div>
+        <div class="hidden md:flex gap-8 text-sm font-semibold tracking-tighter">
+            <a href="#about" class="hover:text-[var(--primary)] transition">DESCEND</a>
+            <a href="#timeline" class="hover:text-[var(--primary)] transition">CHRONICLE</a>
+            <a href="#arsenal" class="hover:text-[var(--primary)] transition">ARSENAL</a>
+            <a href="#contact" class="hover:text-[var(--primary)] transition">INVOKE</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-20">
+        <div class="reveal">
+            <p class="text-[var(--primary)] mythic-font tracking-[0.5em] mb-4 text-xs md:text-sm">|| ॐ ||</p>
+            <p class="text-[var(--primary)] mythic-font tracking-[0.5em] mb-4 text-xs md:text-sm">|| श्री गणेशाय नमः ||</p>
+            <h1 class="text-5xl md:text-8xl font-bold mb-4 tracking-tighter transition-all">NISHANT KUMAR ARYA</h1>
+            <div class="h-1 w-24 bg-[var(--primary)] mx-auto mb-6 rounded-full"></div>
+            <h2 class="text-xl md:text-2xl font-light opacity-80 mb-8 italic">Civil Sub-Engineer | Infrastructure Visionary</h2>
+            <div class="flex gap-4 justify-center">
+                <a href="#contact" class="px-8 py-3 bg-[var(--primary)] text-stone-900 font-bold rounded-sm transition hover:brightness-110">HIRE THE ARCHITECT</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline (Horizontal) -->
+    <section id="timeline" class="py-24 bg-black/20">
+        <div class="px-8 mb-12">
+            <h3 class="text-3xl font-bold text-[var(--primary)] mb-2 mythic-font">The Journey</h3>
+            <p class="opacity-50">Tracing the path from Mahottari to the peaks of engineering.</p>
+        </div>
+        <div class="timeline-scroll flex overflow-x-auto space-x-8 px-8 pb-10 cursor-grab active:cursor-grabbing">
+            <!-- Timeline Item -->
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2014</div>
+                <h4 class="font-bold text-lg mb-1">SLC Foundation</h4>
+                <p class="text-sm opacity-60">Shree Adarsh H.S.S, Mahottari. Score: 68.25%</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2016</div>
+                <h4 class="font-bold text-lg mb-1">Intermediate Science</h4>
+                <p class="text-sm opacity-60">New English +2 Campus, Janakpur. HSEB: 62%</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group border-t-2 border-[var(--primary)]">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2021</div>
+                <h4 class="font-bold text-lg mb-1">B.Tech Civil</h4>
+                <p class="text-sm opacity-60">S.V.I.E.T (MRSPTU). SGPA: 9.17</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2023 - 2024</div>
+                <h4 class="font-bold text-lg mb-1">Asst. Sub-Engineer</h4>
+                <p class="text-sm opacity-60">Chainpur Municipality, Koshi Province.</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group bg-[var(--primary)]/10">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2024 - PRESENT</div>
+                <h4 class="font-bold text-lg mb-1">Civil Sub-Engineer</h4>
+                <p class="text-sm opacity-60">Dept. of Water Resources & Irrigation, Dadeldhura.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Arsenal (Skills) -->
+    <section id="arsenal" class="py-24 px-6 max-w-7xl mx-auto">
+        <h3 class="text-4xl text-center mb-16 mythic-font">Divine Arsenal</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="pen-tool"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">AutoCAD</h4>
+                <p class="text-sm opacity-60">Architectural design, 3D visualization, and divine rendering.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="map"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Surveying</h4>
+                <p class="text-sm opacity-60">Mapping the earth: Road, Bridge, and Topographical mastery.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="droplets"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Irrigation</h4>
+                <p class="text-sm opacity-60">Supervising River Training works & hydraulic structures.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="users"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Leadership</h4>
+                <p class="text-sm opacity-60">Critical thinking, patience, and team building excellence.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 px-6 text-center">
+        <div class="max-w-4xl mx-auto glass p-12 rounded-3xl border-2 border-[var(--primary)]/30 reveal">
+            <h3 class="text-3xl mb-6 mythic-font">Invoke the Architect</h3>
+            <p class="mb-10 opacity-70 italic">"Engineering the lands of Nepal with precision and spirit."</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto mb-12">
+                <div class="flex items-center gap-4">
+                    <i data-lucide="mail" class="text-[var(--primary)]"></i>
+                    <span><a href="mailto:nishantaryag596@gmail.com" target="_blank">anishantarya596@gmail.com</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="phone" class="text-[var(--primary)]"></i>
+                    <span><a href="tel:+9779844520050" target="_blank">+977-9844520050</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="map-pin" class="text-[var(--primary)]"></i>
+                    <span><a href="https://maps.app.goo.gl/yr998H7TjonSTL7P6" target="_blank">Pipra-06, Mahottari, Nepal</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="x" class="text-[var(--primary)]"></i>
+                    <span><a href="https://x.com/nishant_ar38830" target="_blank">Nishant Arya</a></span>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-6">
+                <a href="https://www.tiktok.com/@nishantarya89" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="https://wa.me/9779844520050?text=I'm%20want%20to%20talk%20to%20you" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="https://www.facebook.com/rupak.raj.9210" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.instagram.com/anishantarya596/" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center text-xs opacity-40 tracking-[0.3em] mythic-font">
+        © 2026 NISHANT ARYA | धर्मस्य अनुयायी च!
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Reveal animations on scroll
+        const reveal = () => {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const revealTop = el.getBoundingClientRect().top;
+                const revealPoint = 150;
+                if (revealTop < windowHeight - revealPoint) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', reveal);
+        reveal(); // Run once on load
+
+        // Particle System
+        function createParticles(e) {
+            const emojis = ['🔱', '🧱', '🏗️', '📐', '✨', '🕉️', '⚙️'];
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = e.pageX + 'px';
+                p.style.top = e.pageY + 'px';
+                
+                // Random explosion direction
+                const tx = (Math.random() - 0.5) * 300 + 'px';
+                const ty = (Math.random() - 0.5) * 300 + 'px';
+                p.style.setProperty('--tx', tx);
+                p.style.setProperty('--ty', ty);
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        // Toggle Spirit Mode
+        function toggleSpirit() {
+            document.body.classList.toggle('spirit-mode');
+            const icon = document.body.classList.contains('spirit-mode') ? 'eye-off' : 'eye';
+            document.querySelector('.third-eye-btn i').setAttribute('data-lucide', icon);
+            lucide.createIcons();
+        }
+
+        // Horizontal Scroll with Mouse Wheel for Timeline
+        const scrollContainer = document.querySelector(".timeline-scroll");
+        scrollContainer.addEventListener("wheel", (evt) => {
+            evt.preventDefault();
+            scrollContainer.scrollLeft += evt.deltaY;
+        });
+    </script>
+</body>
+</html>
