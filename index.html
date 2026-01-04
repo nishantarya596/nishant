@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nishant Kumar Arya | Civil Sub-Engineer Portfolio</title>
+    <!-- Font -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --primary: #f59e0b; /* Saffron */
+            --accent: #b45309;
+            --bg: #1c1917;
+            --card: #292524;
+            --text: #e7e5e4;
+        }
+
+        .spirit-mode {
+            --primary: #22d3ee; /* Cyan */
+            --accent: #6366f1;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+        }
+
+        body {
+			position: relative;
+			z-index: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.8s ease, color 0.8s ease;
+            overflow-x: hidden;
+        }
+		
+        #canvas-container {
+			position: fixed;
+			inset: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: -50;
+			pointer-events: none;
+		}
+		
+		#canvas-container canvas {
+			display: block;
+			width: 100vw;
+			height: 100vh;
+		}
+		
+        .ui-overlay {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            pointer-events: none;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+            z-index: -10;
+        }
+        .mangala-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 95vh;
+            height: 95vh;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: -20;
+        }
+
+
+
+        h1, h2, h3, .mythic-font {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes rotate-mandala {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .mandala-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 120vw;
+            height: 120vw;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            z-index: -1;
+            animation: rotate-mandala 120s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Custom Scrollbar */
+        .timeline-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .timeline-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 999;
+            font-size: 1.5rem;
+			filter: drop-shadow(0 0 6px gold);
+			animation: explode 1.2s forwards ease-out;
+        }
+
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(360deg) scale(0); opacity: 0; }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Card Hover */
+        .skill-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 30px -10px var(--primary);
+        }
+
+        .third-eye-btn {
+            box-shadow: 0 0 15px var(--primary);
+            animation: pulse-eye 2s infinite;
+        }
+
+        @keyframes pulse-eye {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--primary); }
+            50% { transform: scale(1.1); box-shadow: 0 0 25px var(--primary); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--primary); }
+        }
+    </style>
+</head>
+<body onclick="createParticles(event)">
+
+    <div id="canvas-container"></div>
+
+    <!-- Clean mangala SVG (No Triangles) -->
+    <svg class="mangala-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    </svg>
+	
+    <script>
+        let scene, camera, renderer, sun, moonGroup, moonMesh;
+        let planets = [];
+        
+        // Expanded planet data including Uranus, Neptune, and specific Moon logic
+        const planetData = [
+            { name: "Budha", color: 0xa5a5a5, size: 0.6, dist: 15, speed: 0.03, label: "बुध" },
+            { name: "Shukra", color: 0xe3bb76, size: 1.1, dist: 25, speed: 0.02, label: "शुक्र" },
+            { name: "Prithvi", color: 0x2277ff, size: 1.2, dist: 40, speed: 0.012, label: "पृथ्वी", hasMoon: true },
+            { name: "Mangala", color: 0xff4500, size: 0.9, dist: 55, speed: 0.009, label: "मंगल" },
+            { name: "Brihaspati", color: 0xffa500, size: 3.5, dist: 85, speed: 0.005, label: "बृहस्पति" },
+            { name: "Shani", color: 0xdfd195, size: 3.0, dist: 120, speed: 0.003, label: "शनि", hasRings: true },
+            { name: "Arun", color: 0x8ecad8, size: 2.0, dist: 155, speed: 0.002, label: "अरुण" },
+            { name: "Varun", color: 0x4b70dd, size: 1.9, dist: 190, speed: 0.0015, label: "वरुण" }
+        ];
+
+        function init() {
+            scene = new THREE.Scene();
+            
+            // Increased Far Plane to 2000 to prevent clipping outer planets
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 90, 160);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Enhanced Lighting
+            scene.add(new THREE.AmbientLight(0x333333, 1.5));
+            const sunLight = new THREE.PointLight(0xfff0dd, 5, 300);
+            scene.add(sunLight);
+
+            // Starfield with varying brightness
+            createStars();
+
+            // The Sun (Surya) - The Source
+            const sunGeo = new THREE.SphereGeometry(10, 48, 48);
+            const sunMat = new THREE.MeshStandardMaterial({
+                color: 0xffd700,
+                emissive: 0xffaa00,
+                emissiveIntensity: 1.5
+            });
+            sun = new THREE.Mesh(sunGeo, sunMat);
+            scene.add(sun);
+
+            // Add Bloom-like Glow for Sun
+            const glowGeo = new THREE.SphereGeometry(11.5, 32, 32);
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0xffcc00, transparent: true, opacity: 0.15 });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            sun.add(glow);
+
+            // Create Planets & Moon
+            planetData.forEach(data => {
+                // Orbit Path
+                const orbitCurve = new THREE.EllipseCurve(0, 0, data.dist, data.dist);
+                const points = orbitCurve.getPoints(128);
+                const orbitGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const orbitMat = new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.1 });
+                const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
+                orbitLine.rotation.x = Math.PI / 2;
+                scene.add(orbitLine);
+
+                // Planet Mesh
+                const pGeo = new THREE.SphereGeometry(data.size, 32, 32);
+                const pMat = new THREE.MeshStandardMaterial({ 
+                    color: data.color, 
+                    roughness: 0.7, 
+                    metalness: 0.3 
+                });
+                const pMesh = new THREE.Mesh(pGeo, pMat);
+                
+                // Add Saturn's Rings
+                if (data.hasRings) {
+                    const rGeo = new THREE.RingGeometry(data.size * 1.5, data.size * 2.5, 64);
+                    const rMat = new THREE.MeshBasicMaterial({ color: 0xc2b280, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+                    const ring = new THREE.Mesh(rGeo, rMat);
+                    ring.rotation.x = Math.PI / 2.2;
+                    pMesh.add(ring);
+                }
+
+                // Earth's Moon (Chandra)
+                if (data.hasMoon) {
+                    moonGroup = new THREE.Group();
+                    const moonGeo = new THREE.SphereGeometry(0.35, 16, 16);
+                    const moonMat = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+                    moonMesh = new THREE.Mesh(moonGeo, moonMat);
+                    moonMesh.position.x = 2.5; // distance from earth
+                    moonGroup.add(moonMesh);
+                    pMesh.add(moonGroup);
+                }
+
+                scene.add(pMesh);
+                
+                planets.push({
+                    mesh: pMesh,
+                    distance: data.dist,
+                    speed: data.speed,
+                    angle: Math.random() * Math.PI * 2
+                });
+            });
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            for (let i = 0; i < 15000; i++) {
+                positions.push((Math.random() - 0.5) * 3000);
+                positions.push((Math.random() - 0.5) * 3000);
+                positions.push((Math.random() - 0.5) * 3000);
+                
+                const brightness = 0.5 + Math.random() * 0.5;
+                colors.push(brightness, brightness, brightness);
+            }
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            const starMaterial = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, transparent: true, opacity: 0.8 });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = Date.now() * 0.0005;
+
+            // Sun rotation
+            sun.rotation.y += 0.003;
+
+            // Planet orbits
+            planets.forEach(p => {
+                p.angle += p.speed;
+                p.mesh.position.x = Math.cos(p.angle) * p.distance;
+                p.mesh.position.z = Math.sin(p.angle) * p.distance;
+                p.mesh.rotation.y += 0.01;
+            });
+
+            // Moon orbit around Earth
+            if (moonGroup) {
+                moonGroup.rotation.y += 0.05;
+            }
+
+            // Subtle camera drift for life
+            camera.position.x = Math.sin(time * 0.1) * 20;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = () => {
+            init();
+            animate();
+        };
+    </script>
+
+
+    <!-- Background Mandala -->
+    <svg class="mandala-bg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 1" />
+        <path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="none" stroke="currentColor" stroke-width="0.2" />
+        <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" stroke-width="0.5" />
+    </svg>
+
+    <!-- Third Eye Toggle -->
+    <button onclick="toggleSpirit()" class="third-eye-btn fixed bottom-8 right-8 z-50 p-4 rounded-full bg-stone-800 border-2 border-[var(--primary)] text-[var(--primary)]">
+        <i data-lucide="eye"></i>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/10 px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-widest text-[var(--primary)] mythic-font">N. ARYA</div>
+        <div class="hidden md:flex gap-8 text-sm font-semibold tracking-tighter">
+            <a href="#" class="hover:text-[var(--primary)] transition">HOME</a>
+            <a href="#timeline" class="hover:text-[var(--primary)] transition">TIME LINE</a>
+            <a href="#arsenal" class="hover:text-[var(--primary)] transition">SKILLS</a>
+            <a href="#contact" class="hover:text-[var(--primary)] transition">CONTACT ME</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-20">
+        <div class="reveal">
+            <p class="text-[var(--primary)] mythic-font tracking-[0.5em] mb-4 text-xs md:text-sm">|| ॐ ||</p>
+            <p class="text-[var(--primary)] mythic-font tracking-[0.5em] mb-4 text-xs md:text-sm">|| श्री गणेशाय नमः ||</p>
+            <h1 class="text-5xl md:text-8xl font-bold mb-4 tracking-tighter transition-all">NISHANT KUMAR ARYA</h1>
+            <div class="h-1 w-24 bg-[var(--primary)] mx-auto mb-6 rounded-full"></div>
+            <h2 class="text-xl md:text-2xl font-light opacity-80 mb-8 italic">Civil Sub-Engineer | Infrastructure Visionary</h2>
+            <div class="flex gap-4 justify-center">
+                <a href="#contact" class="px-8 py-3 bg-[var(--primary)] text-stone-900 font-bold rounded-sm transition hover:brightness-110">HIRE ME</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline (Horizontal) -->
+    <section id="timeline" class="py-24 bg-black/20">
+        <div class="px-8 mb-12">
+            <h3 class="text-3xl font-bold text-[var(--primary)] mb-2 mythic-font">The Journey</h3>
+            <p class="opacity-50">Tracing the path from Mahottari to the peaks of engineering.</p>
+        </div>
+        <div class="timeline-scroll flex overflow-x-auto space-x-8 px-8 pb-10 cursor-grab active:cursor-grabbing">
+            <!-- Timeline Item -->
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2014</div>
+                <h4 class="font-bold text-lg mb-1">SLC Foundation</h4>
+                <p class="text-sm opacity-60">Shree Adarsh H.S.S, Mahottari. Score: 68.25%</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2016</div>
+                <h4 class="font-bold text-lg mb-1">Intermediate Science</h4>
+                <p class="text-sm opacity-60">New English +2 Campus, Janakpur. HSEB: 62%</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group border-t-2 border-[var(--primary)]">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2021</div>
+                <h4 class="font-bold text-lg mb-1">B.Tech Civil</h4>
+                <p class="text-sm opacity-60">S.V.I.E.T (MRSPTU). SGPA: 9.17</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2023 - 2024</div>
+                <h4 class="font-bold text-lg mb-1">Asst. Sub-Engineer</h4>
+                <p class="text-sm opacity-60">Chainpur Municipality, Koshi Province.</p>
+            </div>
+            <div class="min-w-[300px] glass p-6 rounded-xl relative group bg-[var(--primary)]/10">
+                <div class="text-[var(--primary)] text-xs font-bold mb-2">2024 - PRESENT</div>
+                <h4 class="font-bold text-lg mb-1">Civil Sub-Engineer</h4>
+                <p class="text-sm opacity-60">Dept. of Water Resources & Irrigation, Dadeldhura.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Arsenal (Skills) -->
+    <section id="arsenal" class="py-24 px-6 max-w-7xl mx-auto">
+        <h3 class="text-4xl text-center mb-16 mythic-font">Divine Skills</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="pen-tool"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">AutoCAD</h4>
+                <p class="text-sm opacity-60">Architectural design, 3D visualization, and divine rendering.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="map"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Surveying</h4>
+                <p class="text-sm opacity-60">Mapping the earth: Road, Bridge, and Topographical mastery.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="droplets"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Irrigation</h4>
+                <p class="text-sm opacity-60">Supervising River Training works & hydraulic structures.</p>
+            </div>
+            <div class="skill-card glass p-8 rounded-2xl transition duration-500 text-center reveal">
+                <div class="w-16 h-16 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="users"></i>
+                </div>
+                <h4 class="text-xl font-bold mb-3">Leadership</h4>
+                <p class="text-sm opacity-60">Critical thinking, patience, and team building excellence.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-24 px-6 text-center">
+        <div class="max-w-4xl mx-auto glass p-12 rounded-3xl border-2 border-[var(--primary)]/30 reveal">
+            <h3 class="text-3xl mb-6 mythic-font">Contact Info</h3>
+            <p class="mb-10 opacity-70 italic">"Engineering the lands of Nepal with precision and spirit."</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-2xl mx-auto mb-12">
+                <div class="flex items-center gap-4">
+                    <i data-lucide="mail" class="text-[var(--primary)]"></i>
+                    <span><a href="mailto:nishantaryag596@gmail.com" target="_blank">anishantarya596@gmail.com</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="phone" class="text-[var(--primary)]"></i>
+                    <span><a href="tel:+9779844520050" target="_blank">+977-9844520050</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="map-pin" class="text-[var(--primary)]"></i>
+                    <span><a href="https://maps.app.goo.gl/yr998H7TjonSTL7P6" target="_blank">Pipra-06, Mahottari, Nepal</a></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <i data-lucide="x" class="text-[var(--primary)]"></i>
+                    <span><a href="https://x.com/nishant_ar38830" target="_blank">Nishant Arya</a></span>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-6">
+                <a href="https://www.tiktok.com/@nishantarya89" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="https://wa.me/9779844520050?text=I'm%20want%20to%20talk%20to%20you" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="https://www.facebook.com/rupak.raj.9210" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-facebook"></i></a>
+                <a href="https://www.instagram.com/anishantarya596/" class="hover:text-[var(--primary)] transition"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </section>
+    <footer class="py-12 text-center text-xs opacity-40 tracking-[0.3em] mythic-font">
+        © 2026 NISHANT ARYA | धर्मस्य अनुयायी च!
+    </footer>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Reveal animations on scroll
+        const reveal = () => {
+            const reveals = document.querySelectorAll('.reveal');
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const revealTop = el.getBoundingClientRect().top;
+                const revealPoint = 150;
+                if (revealTop < windowHeight - revealPoint) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', reveal);
+        reveal(); // Run once on load
+
+        // Particle System
+        function createParticles(e) {
+            const emojis = ['🔱', '🧱', '🏗️', '📐', '✨', '🕉️', '⚙️'];
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = (e.pageX + (Math.random() - 0.5) * 20) + 'px';
+				p.style.top = (e.pageY + (Math.random() - 0.5) * 20) + 'px';
+
+
+                
+                // Random explosion direction
+                const tx = (Math.random() - 0.5) * 300 + 'px';
+                const ty = (Math.random() - 0.5) * 300 + 'px';
+                p.style.setProperty('--tx', tx);
+                p.style.setProperty('--ty', ty);
+
+				
+
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        // Toggle Spirit Mode
+        function toggleSpirit() {
+            document.body.classList.toggle('spirit-mode');
+            const icon = document.body.classList.contains('spirit-mode') ? 'eye-off' : 'eye';
+            document.querySelector('.third-eye-btn i').setAttribute('data-lucide', icon);
+            lucide.createIcons();
+        }
+
+        // Horizontal Scroll with Mouse Wheel for Timeline
+        const scrollContainer = document.querySelector(".timeline-scroll");
+        scrollContainer.addEventListener("wheel", (evt) => {
+            evt.preventDefault();
+            scrollContainer.scrollLeft += evt.deltaY;
+        });
+    </script>
+
+</body>
+</html>
